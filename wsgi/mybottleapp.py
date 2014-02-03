@@ -78,6 +78,23 @@ def get():
     
     return static_file("book.db","/var/lib/openshift/52eb84685973ca7f720000b2/app-root/runtime/repo/wsgi",download="book.db")
 
+#生成xls文件并提供下载
+@route("/getxls")
+def getxls():
+    import newxls
+    return static_file("test.xls","/var/lib/openshift/52eb84685973ca7f720000b2/app-root/runtime/repo/wsgi",download="test.xls")
+
+  
+#重置数据库
+@route("/reset")
+def reset():
+    conn = sqlite3.connect('/var/lib/openshift/52eb84685973ca7f720000b2/app-root/runtime/repo/wsgi/book.db')
+    c = conn.cursor()
+    c.execute("delete from book")
+    conn.commit()
+    c.close()
+    conn.close()
+    return '数据库已清空！';
 #插入
 def insert():
     params = isbn
@@ -103,13 +120,14 @@ def update():
     c = conn.cursor()
     c.execute("update book set lasttime='"+lasttime+"' where code Like "+isbn+"")
     conn.commit()
+    c.close()
+    conn.close()
 
-
-def find():
-    conn = sqlite3.connect('/var/lib/openshift/52eb84685973ca7f720000b2/app-root/runtime/repo/wsgi/book.db')
-    c = conn.cursor()
-    for isbncode in c.execute('select code from book'):
-        print isbncode
+#查询界面
+@route("/query")
+def query():
+    import query
+    return static_file("out.html","/var/lib/openshift/52eb84685973ca7f720000b2/app-root/runtime/repo/wsgi")       
 
 #@route('/hello/:name')
 #def index(name='World'):
@@ -119,3 +137,4 @@ def find():
 #默认端口  run(host='localhost', port=8080)
 #run(host='0.0.0.0', port=8080)
 application=default_app()
+
